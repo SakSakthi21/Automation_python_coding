@@ -51,3 +51,69 @@ cart.click()
 
 input("Press Enter in console to quit...")
 driver.quit()
+
+#3
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+
+driver = webdriver.Chrome()
+driver.maximize_window()
+driver.get("https://www.flipkart.com/")
+
+# Use a short timeout (3 seconds) for optional popups
+short_wait = WebDriverWait(driver, 3)
+wait =  WebDriverWait(driver,10)
+
+try:
+    close_btn = short_wait.until(
+        EC.element_to_be_clickable((
+            By.XPATH, 
+            "//span[@class='_30XB9F'] | //button[contains(text(),'✕')] | //span[text()='✕']"
+        ))
+    )
+    close_btn.click()
+    print("Login popup closed successfully!")
+except TimeoutException:
+    print("No login popup appeared. Proceeding with main page...")
+try:
+    login_click = wait.until(EC.element_to_be_clickable((By.XPATH,"//span[@class='v1zwn28'] | //button[contains(text(),'Login')]")))
+    login_click.click()
+    print("login button clicked")
+
+
+except Exception as e:
+    print("error in login button click")
+
+try:
+    input_number = wait.until(EC.element_to_be_clickable((By.XPATH,"//input[@class='jwCbxy'] | //input[@type='number']")))
+    input_number.click()
+    input_number.send_keys("8925759506")
+    print("number entered")
+except Exception as e:
+    print("error in number entering")
+
+try:
+    click_enter = wait.until(EC.element_to_be_clickable((By.XPATH,"//button[contains(text(),'Continue')]"))).click()
+    print("check for otp")
+except Exception as e:
+    print("error in continue button")
+    otp = input("enter the otp")
+
+try:
+    # Target the actual input tag, not the parent div wrapper
+    otp_input = wait.until(
+        EC.presence_of_element_located((
+            By.XPATH,
+            "//form//input[@type='number'] | //div[contains(@class, 'OTP')]//input"
+        ))
+    )
+    
+    otp = input("Check your phone and enter the OTP in terminal: ")
+    otp_input.send_keys(otp)
+    print("OTP submitted. Successfully logged in!")
+except Exception as e:
+    print(f"Error in OTP phase: {e}")
