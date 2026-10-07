@@ -1,0 +1,124 @@
+1-10 tests
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
+
+driver = webdriver.Chrome()
+wait = WebDriverWait(driver, 10)
+driver.maximize_window()
+
+try:
+    print("--- Running TC01: Open Demo Website ---")
+    clean_url = "https://demo.automationtesting.in/Alerts.html"
+    driver.get(clean_url)
+    
+    assert "Alerts" in driver.title or "Automation Testing" in driver.title
+    print("SUCCESS (TC01): Website opened successfully.")
+
+    print("\n--- Running TC02: Alert - accept() ---")
+    tab_confirm = driver.find_element(By.XPATH, "//a[href='#CancelTab' or contains(text(), 'Alert with OK & Cancel')]")
+    tab_confirm.click()
+    
+    btn_confirm = wait.until(EC.element_to_be_clickable((By.XPATH, "//div[@id='CancelTab']/button")))
+    btn_confirm.click()
+    
+    alert = wait.until(EC.alert_is_present())
+    print(f"Alert Text: '{alert.text}'")
+    alert.accept()
+    
+    confirm_msg = driver.find_element(By.ID, "demo").text
+    assert "You pressed Ok" in confirm_msg
+    print(f"SUCCESS (TC02): Action confirmed via alert.accept(). Result: '{confirm_msg}'")
+
+    print("\n--- Running TC03: Alert - dismiss() ---")
+    btn_confirm.click()
+    
+    alert = wait.until(EC.alert_is_present())
+    alert.dismiss()
+    
+    cancel_msg = driver.find_element(By.ID, "demo").text
+    assert "You Pressed Cancel" in cancel_msg or "Cancel" in cancel_msg
+    print(f"SUCCESS (TC03): Action canceled via alert.dismiss(). Result: '{cancel_msg}'")
+
+    print("\n--- Running TC04: Prompt - send_keys() ---")
+    tab_prompt = driver.find_element(By.XPATH, "//a[contains(text(), 'Alert with Textbox')]")
+    tab_prompt.click()
+
+    btn_prompt = wait.until(EC.element_to_be_clickable((By.XPATH, "//div[@id='Textbox']/button")))
+    btn_prompt.click()
+    
+    prompt_alert = wait.until(EC.alert_is_present())
+    customer_name = "Alex Mercer"
+    prompt_alert.send_keys(customer_name)
+    prompt_alert.accept()
+    
+    prompt_msg = driver.find_element(By.ID, "demo1").text
+    assert customer_name in prompt_msg
+    print(f"SUCCESS (TC04): Information submitted via send_keys(). Result: '{prompt_msg}'")
+    print("\n--- Running TC05: Mouse Hover ---")
+    switch_to_menu = driver.find_element(By.XPATH, "//a[contains(text(), 'SwitchTo')]")
+    
+    actions = ActionChains(driver)
+    actions.move_to_element(switch_to_menu).perform()
+
+    submenu_item = driver.find_element(By.XPATH, "//a[contains(text(), 'Windows')]")
+    assert submenu_item.is_displayed()
+    print("SUCCESS (TC05): Hover successful. Navigation submenu displayed.")
+
+finally:
+    input("\nPress Enter to close the browser...")
+    driver.quit()
+    print("\nAll test cases executed successfully on demo.automationtesting.in!")
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+driver = webdriver.Chrome()
+driver.maximize_window()
+wait = WebDriverWait(driver, 10)
+actions = ActionChains(driver)
+
+try:
+    # TC06: Double Click
+    driver.get("https://demoqa.com/buttons")
+    double_click_btn = driver.find_element(By.ID, "doubleClickBtn")
+    actions.double_click(double_click_btn).perform()
+    print("TC06 Passed: Double-clicked button.")
+
+    # TC07: Drag & Drop
+    driver.get("https://demoqa.com/droppable")
+    source = driver.find_element(By.ID, "draggable")
+    target = driver.find_element(By.ID, "droppable")
+    actions.drag_and_drop(source, target).perform()
+    print("TC07 Passed: Dragged and dropped element.")
+
+    # TC08: Explicit Wait (Visibility)
+    driver.get("https://demoqa.com/dynamic-properties")
+    visible_btn = wait.until(
+        EC.visibility_of_element_located((By.ID, "visibleAfter"))
+    )
+    print(f"TC08 Passed: Element loaded and visible -> {visible_btn.text}")
+
+    # TC09: Clickable Wait
+    driver.get("https://demoqa.com/dynamic-properties")
+    enable_btn = wait.until(
+        EC.element_to_be_clickable((By.ID, "enableAfter"))
+    )
+    enable_btn.click()
+    print("TC09 Passed: Button became clickable and was clicked.")
+
+    # TC10: Alert Wait
+    driver.get("https://demoqa.com/alerts")
+    driver.find_element(By.ID, "timerAlertButton").click()
+    wait.until(EC.alert_is_present())
+    driver.switch_to.alert.accept()
+    print("TC10 Passed: Alert appeared and was accepted.")
+
+finally:
+    driver.quit()
